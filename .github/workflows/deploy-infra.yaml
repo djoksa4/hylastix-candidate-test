@@ -34,6 +34,9 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_USE_OIDC: true
+          TF_VAR_project_name: "hylastix-candidate-test"
+          TF_VAR_region: "westeurope"
+          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           cd infra/terraform
           terraform init -input=false
