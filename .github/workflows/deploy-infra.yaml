@@ -34,10 +34,32 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_USE_OIDC: true
+
           TF_VAR_project_name: "hylastix-candidate-test"
           TF_VAR_region: "westeurope"
           TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_address_space: '["10.0.0.0/20"]'
+          TF_VAR_subnets: '[{"name":"private-runner-subnet","address_prefix":"10.0.0.0/24"},{"name":"private-app-subnet","address_prefix":"10.0.1.0/24"},{"name":"appgw-subnet","address_prefix":"10.0.2.0/24"}]'
+
         run: |
           cd infra/terraform
           terraform init -input=false
           terraform plan -input=false
+
+      - name: Get GitHub self-hosted runner token
+        id: get-runner-token
+        run: |
+          TOKEN_JSON=$(curl -s -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token)
+          
+          REG_TOKEN=$(echo "$TOKEN_JSON" | jq -r '.token')
+          echo "runner_token=$REG_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Show runner token
+        run: |
+          echo "Runner token is: ${{ steps.get-runner-token.outputs.runner_token }}"
+
+      # Step: create Azure resources using Terraform (pass runner token)
