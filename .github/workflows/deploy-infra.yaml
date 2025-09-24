@@ -28,24 +28,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Test TF to Azure connectivity
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_USE_OIDC: true
-
-          TF_VAR_project_name: "hylastix-candidate-test"
-          TF_VAR_region: "westeurope"
-          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          TF_VAR_address_space: '["10.0.0.0/20"]'
-          TF_VAR_subnets: '[{"name":"private-runner-subnet","address_prefix":"10.0.0.0/24"},{"name":"private-app-subnet","address_prefix":"10.0.1.0/24"},{"name":"appgw-subnet","address_prefix":"10.0.2.0/24"}]'
-
-        run: |
-          cd infra/terraform
-          terraform init -input=false
-          terraform plan -input=false
-
       - name: Get GitHub self-hosted runner token
         id: get-runner-token
         run: |
@@ -62,4 +44,28 @@ jobs:
         run: |
           echo "Runner token is: ${{ steps.get-runner-token.outputs.runner_token }}"
 
-      # Step: create Azure resources using Terraform (pass runner token)
+      - name: TF to Azure
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC: true
+
+          TF_VAR_project_name: "hylastix-candidate-test"
+          TF_VAR_region: "westeurope"
+          TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_address_space: '["10.0.0.0/20"]'
+          TF_VAR_subnets: '[{"name":"private-runner-subnet","address_prefix":"10.0.0.0/24"},{"name":"private-app-subnet","address_prefix":"10.0.1.0/24"},{"name":"appgw-subnet","address_prefix":"10.0.2.0/24"}]'
+          
+          TF_VAR_runner_vm_size: Standard_B2s
+          TF_VAR_runner_vm_admin_username: ${{ secrets.RUNNER_VM_ADMIN_USERNAME }}
+          TF_VAR_runner_ssh_public_key: ${{ secrets.RUNNER_SSH_PUBLIC_KEY }}
+          TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
+          TF_VAR_runner_github_url: https://github.com/${{ github.repository }}
+
+        run: |
+          cd infra/terraform
+          terraform init -input=false
+          terraform plan -input=false
+
+          echo $TF_VAR_runner_github_url
