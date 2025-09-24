@@ -16,7 +16,6 @@ resource "azurerm_subnet" "this" {
 }
 
 ################ APPLICATION GATEWAY ################
-
 resource "azurerm_public_ip" "appgw_pip" {
   name                = "${var.project_name}-appgw-pip"
   location            = var.region
