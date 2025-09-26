@@ -13,16 +13,12 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "address_space" {
-  description = "Address space for the Virtual Network"
-  type        = list(string)
+variable "app_vm_private_ip" {
+  description = "Private IP of the app VM"
+  type        = string
 }
 
-variable "subnets" {
-  description = "List of subnets to create inside the VNet"
-  type = list(object({
-    name           = string
-    address_prefix = string
-  }))
+variable "appgw_subnet_id" {
+  description = "Subnet ID where the app GW will be deployed"
+  type        = string
 }
-

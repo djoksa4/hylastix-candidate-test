@@ -1,4 +1,4 @@
-# GENERAL
+################ GENERAL ################
 variable "project_name" {
   type        = string
   description = "Prefix for all resources in the project"
@@ -22,7 +22,7 @@ variable "region" {
 variable "subscription_id" {
   type        = string
   description = "Azure subscription ID"
-  sensitive = true
+  sensitive   = true
 
   validation {
     condition     = length(trimspace(var.subscription_id)) > 0
@@ -30,13 +30,13 @@ variable "subscription_id" {
   }
 }
 
-# NETWORK
+################ NETWORK ################
 variable "address_space" {
   description = "VNet CIDR block"
   type        = list(string)
 
   validation {
-    condition = length(var.address_space) > 0 && alltrue([for s in var.address_space : length(trimspace(s)) > 0])
+    condition     = length(var.address_space) > 0 && alltrue([for s in var.address_space : length(trimspace(s)) > 0])
     error_message = "address_space must be a non-empty list of non-empty strings."
   }
 }
@@ -50,13 +50,14 @@ variable "subnets" {
 
   validation {
     condition = length(var.subnets) > 0 && alltrue([
-                  for s in var.subnets : length(trimspace(s.name)) > 0 && length(trimspace(s.address_prefix)) > 0
-                ])
+      for s in var.subnets : length(trimspace(s.name)) > 0 && length(trimspace(s.address_prefix)) > 0
+    ])
     error_message = "subnets must be a non-empty list and each subnet must have a non-empty 'name' and 'address_prefix'."
   }
 }
 
-#VMs
+################ VMs ################
+################ RUNNER VM ################
 variable "runner_vm_size" {
   description = "VM size"
   type        = string
@@ -78,14 +79,14 @@ variable "runner_vm_admin_username" {
   }
 }
 
-variable "runner_ssh_public_key" {
+variable "runner_vm_ssh_public_key" {
   description = "SSH public key for authentication"
   type        = string
   sensitive   = true
 
   validation {
-    condition     = length(trimspace(var.runner_ssh_public_key)) > 0
-    error_message = "runner_ssh_public_key variable must not be empty."
+    condition     = length(trimspace(var.runner_vm_ssh_public_key)) > 0
+    error_message = "runner_vm_ssh_public_key variable must not be empty."
   }
 }
 
@@ -107,5 +108,38 @@ variable "runner_github_url" {
   validation {
     condition     = length(trimspace(var.runner_github_url)) > 0
     error_message = "runner_github_url variable must not be empty."
+  }
+}
+
+################ APP VM ################
+variable "app_vm_size" {
+  description = "VM size"
+  type        = string
+
+  validation {
+    condition     = length(trimspace(var.app_vm_size)) > 0
+    error_message = "app_vm_size variable must not be empty."
+  }
+}
+
+variable "app_vm_admin_username" {
+  description = "Admin username for the VM"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(trimspace(var.app_vm_admin_username)) > 0
+    error_message = "app_vm_admin_username variable must not be empty."
+  }
+}
+
+variable "app_vm_ssh_public_key" {
+  description = "SSH public key for authentication"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(trimspace(var.app_vm_ssh_public_key)) > 0
+    error_message = "app_vm_ssh_public_key variable must not be empty."
   }
 }
