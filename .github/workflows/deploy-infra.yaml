@@ -11,6 +11,7 @@ jobs:
   terraform-deploy-infra:
     name: Terraform Deploy Infra
     runs-on: ubuntu-latest
+    environment: prod
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -63,10 +64,6 @@ jobs:
           REG_TOKEN=$(echo "$TOKEN_JSON" | jq -r '.token')
           echo "runner_token=$REG_TOKEN" >> $GITHUB_OUTPUT
 
-      - name: Show runner token
-        run: |
-          echo "Runner token is: ${{ steps.get-runner-token.outputs.runner_token }}"
-
       - name: Initialize and Plan Terraform
         env:
           TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
@@ -74,7 +71,7 @@ jobs:
           terraform init -input=false
           terraform plan -input=false
 
-      # - name: Apply Terraform
-      #   env:
-      #     TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
-      #   run: terraform apply -auto-approve
+      - name: Apply Terraform
+        env:
+          TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
+        run: terraform apply -auto-approve
