@@ -13,7 +13,7 @@ mkdir -p /home/azureuser/actions-runner
 chown -R azureuser:azureuser /home/azureuser/actions-runner
 
 # Run runner commands as azureuser
-sudo -i -u azureuser bash <<'EOF'
+sudo -i -u azureuser bash <<EOF
 cd /home/azureuser/actions-runner
 
 # Download the specific runner version
