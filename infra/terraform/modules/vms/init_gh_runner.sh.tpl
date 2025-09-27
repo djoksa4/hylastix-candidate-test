@@ -8,21 +8,25 @@ RUNNER_NAME="${runner_name}"
 apt-get update
 apt-get install -y curl jq git
 
-# Ensure user directory exists
-RUNNER_DIR="/home/azureuser/actions-runner"
-mkdir -p "$RUNNER_DIR"
-cd "$RUNNER_DIR"
+# Ensure /home/azureuser/actions-runner exists
+mkdir -p /home/azureuser/actions-runner
+chown -R azureuser:azureuser /home/azureuser/actions-runner
 
-# Download the latest GitHub runner
-curl -o actions-runner-linux-x64.tar.gz -L https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64.tar.gz
-tar xzf actions-runner-linux-x64.tar.gz
+# Switch to azureuser for all runner commands
+su - azureuser -c "
+cd /home/azureuser/actions-runner
 
-# Make scripts executable
-chmod +x config.sh svc.sh
 
-# Configure the runner
-sudo -u azureuser ./config.sh --url "$GITHUB_URL" --token "$RUNNER_TOKEN" --name "$RUNNER_NAME" --unattended --replace
+# Download the specific runner version
+curl -O -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz
 
-# Install as a service
-sudo -u azureuser ./svc.sh install
-sudo -u azureuser ./svc.sh start
+# Extract the runner
+tar xzf ./actions-runner-linux-x64-2.328.0.tar.gz
+
+# Configure the runner (unattended)
+./config.sh --url \"$GITHUB_URL\" --token \"$RUNNER_TOKEN\" --name \"$RUNNER_NAME\" --unattended --replace
+
+# Install and start the runner service
+./svc.sh install
+./svc.sh start
+"
