@@ -13,7 +13,7 @@ mkdir -p /home/azureuser/actions-runner
 chown -R azureuser:azureuser /home/azureuser/actions-runner
 
 # Download and configure runner as azureuser
-sudo -i -u azureuser bash <<'EOF'
+sudo -i -u azureuser bash <<EOF
 cd /home/azureuser/actions-runner
 curl -O -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz
 tar xzf ./actions-runner-linux-x64-2.328.0.tar.gz
