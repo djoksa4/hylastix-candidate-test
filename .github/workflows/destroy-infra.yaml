@@ -1,4 +1,4 @@
-name: Deploy Infrastructure
+name: Destroy Infrastructure
 
 on:
   workflow_dispatch:
@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  terraform-deploy-infra:
-    name: Terraform Deploy Infra
+  terraform-destroy-infra:
+    name: Terraform Destroy Infra
     runs-on: ubuntu-latest
     environment: prod
     env:
@@ -37,7 +37,7 @@ jobs:
         working-directory: infra/terraform
 
     steps:
-      - name: Checkout code 
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Terraform
@@ -52,26 +52,9 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get GitHub self-hosted runner token
-        id: get-runner-token
-        run: |
-          TOKEN_JSON=$(curl -s -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GH_ADMIN_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runners/registration-token)
-          
-          REG_TOKEN=$(echo "$TOKEN_JSON" | jq -r '.token')
-          echo "runner_token=$REG_TOKEN" >> $GITHUB_OUTPUT
-
-      - name: Initialize and Plan Terraform
+      - name: Terraform Destroy
         env:
-          TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
+          TF_VAR_runner_registration_token: 'N/A'
         run: |
           terraform init -input=false
-          terraform plan -input=false
-
-      - name: Apply Terraform
-        env:
-          TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
-        run: terraform apply -auto-approve
+          terraform destroy -auto-approve
