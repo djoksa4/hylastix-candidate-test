@@ -90,7 +90,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     needs: terraform-deploy-infra
     steps:
-      - name: Print previous job outputs
+      - name: Print previous job outputs and test SSH
         run: |
           echo "App VM IP: ${{ needs.terraform-deploy-infra.outputs.app_vm_private_ip }}"
           echo "AppGW IP: ${{ needs.terraform-deploy-infra.outputs.appgw_public_ip }}"
+
+          echo "${{ secrets.APP_VM_PRIVATE_KEY }}" > /tmp/app_vm_key
+          chmod 600 /tmp/app_vm_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/app_vm_key ${{ secrets.APP_VM_ADMIN_USERNAME }}@${{ needs.terraform-deploy-infra.outputs.app_vm_private_ip }} "hostname && uptime"
