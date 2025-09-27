@@ -46,6 +46,10 @@ resource "azurerm_linux_virtual_machine" "runner_vm" {
     github_url   = var.runner_github_url
     runner_name  = "${var.project_name}-runner"
   }))
+
+  lifecycle {
+    ignore_changes = [custom_data]
+  }
 }
 
 ################ APP VM ################

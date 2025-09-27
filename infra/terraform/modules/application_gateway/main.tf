@@ -13,8 +13,8 @@ resource "azurerm_application_gateway" "this" {
   resource_group_name = var.resource_group_name
 
   sku {
-    name     = "WAF_v2"
-    tier     = "WAF_v2"
+    name     = "Basic"
+    tier     = "Basic"
     capacity = 1
   }
 
