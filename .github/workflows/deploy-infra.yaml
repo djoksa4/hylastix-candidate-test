@@ -36,6 +36,10 @@ jobs:
       run:
         working-directory: infra/terraform
 
+    outputs:
+      app_vm_private_ip: ${{ steps.tf-outputs.outputs.app_vm_private_ip }}
+      appgw_public_ip: ${{ steps.tf-outputs.outputs.appgw_public_ip }}
+
     steps:
       - name: Checkout code 
         uses: actions/checkout@v4
@@ -75,3 +79,18 @@ jobs:
         env:
           TF_VAR_runner_registration_token: ${{ steps.get-runner-token.outputs.runner_token }}
         run: terraform apply -auto-approve
+
+      - name: Export Terraform Outputs
+        id: tf-outputs
+        run: |
+          echo "app_vm_private_ip=$(terraform output -raw app_vm_private_ip)" >> $GITHUB_OUTPUT
+          echo "appgw_public_ip=$(terraform output -raw appgw_public_ip)" >> $GITHUB_OUTPUT
+
+  next-job:
+    runs-on: [self-hosted, Linux, X64]
+    needs: terraform-deploy-infra
+    steps:
+      - name: Print previous job outputs
+        run: |
+          echo "App VM IP: ${{ needs.terraform-deploy-infra.outputs.app_vm_private_ip }}"
+          echo "AppGW IP: ${{ needs.terraform-deploy-infra.outputs.appgw_public_ip }}"
