@@ -1,0 +1,12 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Docker using role
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
