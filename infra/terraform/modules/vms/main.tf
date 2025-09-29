@@ -1,5 +1,6 @@
 
 ################ GITHUB SELF-HOSTED RUNNER VM ################
+
 resource "azurerm_network_interface" "runner_nic" {
   name                = "${var.project_name}-runner-nic"
   location            = var.region
@@ -54,6 +55,15 @@ resource "azurerm_linux_virtual_machine" "runner_vm" {
 
 ################ APP VM ################
 
+# TEMP PUBLIC ACCESS TO CHECK ON CONFIGURATION
+resource "azurerm_public_ip" "app_pip" {
+  name                = "${var.project_name}-app-pip"
+  location            = var.region
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
 resource "azurerm_network_interface" "app_nic" {
   name                = "${var.project_name}-app-nic"
   location            = var.region
@@ -63,6 +73,8 @@ resource "azurerm_network_interface" "app_nic" {
     name                          = "app-ipcfg"
     subnet_id                     = var.app_vm_subnet_id
     private_ip_address_allocation = "Dynamic"
+    # TEMP PUBLIC ACCESS TO CHECK ON CONFIGURATION
+    public_ip_address_id          = azurerm_public_ip.app_pip.id
   }
 }
 
