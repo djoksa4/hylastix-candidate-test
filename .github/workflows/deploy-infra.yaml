@@ -107,7 +107,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y python3-pip
-          sudo pip3 install --upgrade ansible==2.14.10
+          sudo pip3 install --upgrade "ansible
           ansible --version
 
       - name: Install required Ansible roles
