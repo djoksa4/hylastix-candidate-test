@@ -104,7 +104,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_PATH" "$VM_USER"@"$VM_IP" "hostname && uptime"
 
       - name: Setup Ansible
-        run: sudo apt update && sudo apt install -y ansible
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip
+          sudo pip3 install --upgrade ansible==2.14.10
+          ansible --version
 
       - name: Install required Ansible roles
         run: |
