@@ -73,8 +73,13 @@ resource "azurerm_network_interface" "app_nic" {
     name                          = "app-ipcfg"
     subnet_id                     = var.app_vm_subnet_id
     private_ip_address_allocation = "Dynamic"
-    # TEMP PUBLIC ACCESS TO CHECK ON CONFIGURATION
+    
     public_ip_address_id          = azurerm_public_ip.app_pip.id
+  }
+  
+  # TEMP PUBLIC ACCESS TO CHECK ON CONFIGURATION
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
