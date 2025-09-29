@@ -119,4 +119,4 @@ jobs:
                            -i "$VM_IP," \
                            -u "$VM_USER" \
                            --private-key "$SSH_KEY_PATH" \
-                           infra/ansible/playbooks/setup_docker.yml
+                           infra/ansible/playbooks/setup_docker.yaml
