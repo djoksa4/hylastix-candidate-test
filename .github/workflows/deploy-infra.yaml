@@ -113,14 +113,48 @@ jobs:
       - name: Install required Ansible roles
         run: |
           ansible-galaxy install geerlingguy.docker
+          ansible-galaxy collection install community.docker
 
       - name: Checkout code 
         uses: actions/checkout@v4
 
-      - name: Run Docker setup playbook
+      - name: Run Docker Setup playbook
         run: |
           ansible-playbook -vvv \
                            -i "$VM_IP," \
                            -u "$VM_USER" \
                            --private-key "$SSH_KEY_PATH" \
                            infra/ansible/playbooks/setup_docker.yaml
+
+      - name: Run App Stack playbook
+        env:
+          KEYCLOAK_IMAGE: quay.io/keycloak/keycloak:21.1.1
+          KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
+          KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+          POSTGRES_IMAGE: postgres:15
+          POSTGRES_DB_NAME: appdb
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          WEB_IMAGE: nginx:latest
+          WEB_CONTENT_DIR_LOCAL: infra/ansible/web_content/
+          WEB_CONFIG_DIR_LOCAL: infra/ansible/web_config/
+          WEB_PORT: 8080
+          
+        run: |
+          ansible-playbook -vvv \
+                           -i "$VM_IP," \
+                           -u "$VM_USER" \
+                           --private-key "$SSH_KEY_PATH" \
+                           infra/ansible/playbooks/deploy_stack.yaml \
+                           --extra-vars "keycloak_image=$KEYCLOAK_IMAGE \
+                                         keycloak_admin_user=$KEYCLOAK_ADMIN_USER \
+                                         keycloak_admin_password=$KEYCLOAK_ADMIN_PASSWORD \
+                                         postgres_image=$POSTGRES_IMAGE \
+                                         postgres_db_name=$POSTGRES_DB_NAME \
+                                         postgres_user=$POSTGRES_USER \
+                                         postgres_password=$POSTGRES_PASSWORD \
+                                         web_image=$WEB_IMAGE \
+                                         web_content_dir_local=$WEB_CONTENT_DIR_LOCAL \
+                                         nginx_config_dir_local=$WEB_CONFIG_DIR_LOCAL \
+                                         web_port=$WEB_PORT"
+                                         
