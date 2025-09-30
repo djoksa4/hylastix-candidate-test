@@ -77,9 +77,21 @@ resource "azurerm_network_security_group" "app_vm_nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"   # or your own IP for security
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+  name                       = "AppGwToAppVM"
+  priority                   = 1002
+  direction                  = "Inbound"
+  access                     = "Allow"
+  protocol                   = "Tcp"
+  source_port_range          = "*"
+  destination_port_range     = "8080"
+  source_address_prefix      = var.appgw_cidr
+  destination_address_prefix = "*"
+}
 }
 
 resource "azurerm_network_interface_security_group_association" "app_nic_assoc" {

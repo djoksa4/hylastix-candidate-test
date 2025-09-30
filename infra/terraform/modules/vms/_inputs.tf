@@ -70,3 +70,8 @@ variable "app_vm_ssh_public_key" {
   type        = string
   sensitive   = true
 }
+
+variable "appgw_cidr" {
+  description = "CIDR of the Application Gateway subnet"
+  type = string
+}

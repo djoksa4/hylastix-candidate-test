@@ -1,3 +1,7 @@
+locals {
+  appgw_cidr = [for s in var.subnets : s.address_prefix if s.name == "appgw-subnet"][0]
+}
+
 resource "azurerm_resource_group" "main" {
   name     = "${var.project_name}-rg"
   location = var.region
@@ -29,6 +33,8 @@ module "vms" {
   app_vm_size           = var.app_vm_size
   app_vm_admin_username = var.app_vm_admin_username
   app_vm_ssh_public_key = var.app_vm_ssh_public_key
+
+  appgw_cidr = local.appgw_cidr
 }
 
 module "application_gateway" {
