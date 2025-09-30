@@ -33,14 +33,14 @@
         group: root
         mode: '0755'
 
-    # - name: Copy Nginx config files to host
-    #   copy:
-    #     src: "{{ nginx_config_dir_local }}"
-    #     dest: "{{ nginx_config_dir_host }}/"
-    #     owner: root
-    #     group: root
-    #     mode: '0644'
-    #     directory_mode: '0755'
+    - name: Copy Nginx config files to host
+      copy:
+        src: "{{ nginx_config_dir_local }}"
+        dest: "{{ nginx_config_dir_host }}/"
+        owner: root
+        group: root
+        mode: '0644'
+        directory_mode: '0755'
 
     # - name: Deploy Postgres container
     #   community.docker.docker_container:
