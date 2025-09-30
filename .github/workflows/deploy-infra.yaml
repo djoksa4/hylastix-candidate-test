@@ -136,8 +136,8 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           WEB_IMAGE: nginx:latest
-          WEB_CONTENT_DIR_LOCAL: infra/ansible/web_content/
-          WEB_CONFIG_DIR_LOCAL: infra/ansible/web_config/
+          WEB_CONTENT_DIR_LOCAL: ../web_content/
+          WEB_CONFIG_DIR_LOCAL: ../web_config/
           WEB_PORT: 8080
           
         run: |
