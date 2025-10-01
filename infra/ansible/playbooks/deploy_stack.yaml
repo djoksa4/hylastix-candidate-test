@@ -85,6 +85,7 @@
           KC_DB_USERNAME: "{{ postgres_user }}"
           KC_DB_PASSWORD: "{{ postgres_password }}"
           KC_HOSTNAME_STRICT: "false"
+          KEYCLOAK_DEV_MODE: "true"
         command: start
 
     - name: Configure Keycloak credentials
