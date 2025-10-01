@@ -42,8 +42,9 @@
           KC_DB_USERNAME: "{{ postgres_user }}"
           KC_DB_PASSWORD: "{{ postgres_password }}"
           KC_HOSTNAME_STRICT: "false"
-          KEYCLOAK_DEV_MODE: "true"
-        command: start-dev
+          # KEYCLOAK_DEV_MODE: "true"
+        # command: start-dev
+        command: start
         networks:
           - name: app-net
         published_ports:
@@ -91,6 +92,7 @@
           -s enabled=true
           -s publicClient=false
           -s secret={{ keycloak_client_secret }}
+          -s redirectUris=["https://20.16.68.65/oauth2/callback"]
 
     #### PROXY ####
     - name: Deploy oauth2-proxy container
