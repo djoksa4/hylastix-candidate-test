@@ -109,8 +109,9 @@
           OAUTH2_PROXY_EMAIL_DOMAINS: "*"
         networks:
           - name: app-net
+        command: "--http-address=0.0.0.0:4180"
 
-#### WEBSERVER ####
+    #### WEBSERVER ####
     - name: Ensure web content directory exists
       file:
         path: "{{ web_content_dir_host }}"
