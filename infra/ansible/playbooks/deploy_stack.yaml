@@ -67,9 +67,19 @@
           --user {{ keycloak_admin_user }}
           --password {{ keycloak_admin_password }}
       register: kc_login
-      retries: 10      # try up to 10 times
-      delay: 5        # wait 5s between tries
+      retries: 15
+      delay: 5
       until: kc_login.rc == 0
+
+    - name: Create myrealm in Keycloak
+      community.docker.docker_container_exec:
+        container: keycloak
+        command: >
+          /opt/keycloak/bin/kcadm.sh create realms
+          -s realm=myrealm
+          -s enabled=true
+      register: kc_realm
+      ignore_errors: true
 
     - name: Create web-client in myrealm
       community.docker.docker_container_exec:
