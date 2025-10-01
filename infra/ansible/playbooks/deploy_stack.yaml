@@ -45,16 +45,17 @@
         command: start-dev
         networks:
           - name: app-net
-        published_ports:
-          - "18080:8080"
 
-    - name: Wait for Keycloak to be ready
-      ansible.builtin.wait_for:
-        host: 127.0.0.1
-        port: 18080
-        delay: 10
-        timeout: 120
-        state: started
+    - name: Wait for Keycloak admin API to be ready
+      community.docker.docker_container_exec:
+        container: keycloak
+        command: >
+          sh -c '
+          until /opt/keycloak/bin/kcadm.sh get realms >/dev/null 2>&1; do
+            echo "Waiting for Keycloak...";
+            sleep 2;
+          done
+          '
 
     - name: Configure Keycloak credentials
       community.docker.docker_container_exec:
