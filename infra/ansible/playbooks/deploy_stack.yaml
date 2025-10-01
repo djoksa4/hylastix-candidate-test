@@ -10,7 +10,91 @@
 
 
   tasks:
-    #### WEBSERVER ####
+
+    #### DATABASE ####
+    - name: Deploy Postgres container
+      community.docker.docker_container:
+        name: postgres
+        image: "{{ postgres_image }}"
+        state: started
+        restart_policy: always
+        env:
+          POSTGRES_DB: "{{ postgres_db_name }}"
+          POSTGRES_USER: "{{ postgres_user }}"
+          POSTGRES_PASSWORD: "{{ postgres_password }}"
+        networks:
+          - name: app-net
+
+    #### KEYCLOAK ####
+    - name: Deploy Keycloak container
+      community.docker.docker_container:
+        name: keycloak
+        image: "{{ keycloak_image }}"
+        state: started
+        restart_policy: always
+        env:
+          KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
+          KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
+          KC_DB: postgres
+          KC_DB_URL_HOST: postgres
+          KC_DB_URL_DATABASE: "{{ postgres_db_name }}"
+          KC_DB_USERNAME: "{{ postgres_user }}"
+          KC_DB_PASSWORD: "{{ postgres_password }}"
+          KC_HOSTNAME_STRICT: "false"
+          KEYCLOAK_DEV_MODE: "true"
+        command: start
+        networks:
+          - name: app-net
+        published_ports:
+          - "18080:8080"
+
+    - name: Wait for Keycloak to be ready
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 18080
+        delay: 10
+        timeout: 120
+        state: started
+
+    - name: Configure Keycloak credentials
+      community.docker.docker_container_exec:
+        container: keycloak
+        command: >
+          /opt/keycloak/bin/kcadm.sh config credentials
+          --server http://localhost:8080
+          --realm master
+          --user {{ keycloak_admin_user }}
+          --password {{ keycloak_admin_password }}
+
+    - name: Create web-client in myrealm
+      community.docker.docker_container_exec:
+        container: keycloak
+        command: >
+          /opt/keycloak/bin/kcadm.sh create clients
+          -r myrealm
+          -s clientId={{ keycloak_client }}
+          -s enabled=true
+          -s publicClient=false
+          -s secret={{ keycloak_client_secret }}
+
+    #### PROXY ####
+    - name: Deploy oauth2-proxy container
+      community.docker.docker_container:
+        name: oauth2-proxy
+        image: "{{ oauth2_proxy_image }}"
+        state: started
+        restart_policy: always
+        env:
+          OAUTH2_PROXY_PROVIDER: keycloak
+          OAUTH2_PROXY_CLIENT_ID: "{{ keycloak_client }}"
+          OAUTH2_PROXY_CLIENT_SECRET: "{{ keycloak_client_secret }}"
+          OAUTH2_PROXY_COOKIE_SECRET: "{{ oauth2_proxy_cookie_secret }}"
+          OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/myrealm"
+          OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+        networks:
+          - name: app-net
+
+#### WEBSERVER ####
     - name: Ensure web content directory exists
       file:
         path: "{{ web_content_dir_host }}"
@@ -56,79 +140,6 @@
         volumes:
           - "{{ web_content_dir_host }}:/usr/share/nginx/html:ro"
           - "{{ nginx_config_dir_host }}:/etc/nginx/conf.d:ro"
-        networks:
-          - name: app-net
-
-    #### DATABASE ####
-    - name: Deploy Postgres container
-      community.docker.docker_container:
-        name: postgres
-        image: "{{ postgres_image }}"
-        state: started
-        restart_policy: always
-        env:
-          POSTGRES_DB: "{{ postgres_db_name }}"
-          POSTGRES_USER: "{{ postgres_user }}"
-          POSTGRES_PASSWORD: "{{ postgres_password }}"
-        networks:
-          - name: app-net
-
-    #### KEYCLOAK ####
-    - name: Deploy Keycloak container
-      community.docker.docker_container:
-        name: keycloak
-        image: "{{ keycloak_image }}"
-        state: started
-        restart_policy: always
-        env:
-          KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
-          KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
-          KC_DB: postgres
-          KC_DB_URL_HOST: postgres
-          KC_DB_URL_DATABASE: "{{ postgres_db_name }}"
-          KC_DB_USERNAME: "{{ postgres_user }}"
-          KC_DB_PASSWORD: "{{ postgres_password }}"
-          KC_HOSTNAME_STRICT: "false"
-          KEYCLOAK_DEV_MODE: "true"
-        command: start
-        networks:
-          - name: app-net
-
-    - name: Configure Keycloak credentials
-      community.docker.docker_container_exec:
-        container: keycloak
-        command: >
-          /opt/keycloak/bin/kcadm.sh config credentials
-          --server http://localhost:8080
-          --realm master
-          --user {{ keycloak_admin_user }}
-          --password {{ keycloak_admin_password }}
-
-    - name: Create web-client in myrealm
-      community.docker.docker_container_exec:
-        container: keycloak
-        command: >
-          /opt/keycloak/bin/kcadm.sh create clients
-          -r myrealm
-          -s clientId={{ keycloak_client }}
-          -s enabled=true
-          -s publicClient=false
-          -s secret={{ keycloak_client_secret }}
-
-    #### PROXY ####
-    - name: Deploy oauth2-proxy container
-      community.docker.docker_container:
-        name: oauth2-proxy
-        image: "{{ oauth2_proxy_image }}"
-        state: started
-        restart_policy: always
-        env:
-          OAUTH2_PROXY_PROVIDER: keycloak
-          OAUTH2_PROXY_CLIENT_ID: "{{ keycloak_client }}"
-          OAUTH2_PROXY_CLIENT_SECRET: "{{ keycloak_client_secret }}"
-          OAUTH2_PROXY_COOKIE_SECRET: "{{ oauth2_proxy_cookie_secret }}"
-          OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/myrealm"
-          OAUTH2_PROXY_EMAIL_DOMAINS: "*"
         networks:
           - name: app-net
 
