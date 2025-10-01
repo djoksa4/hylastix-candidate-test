@@ -56,6 +56,8 @@
         volumes:
           - "{{ web_content_dir_host }}:/usr/share/nginx/html:ro"
           - "{{ nginx_config_dir_host }}:/etc/nginx/conf.d:ro"
+        networks:
+          - name: app-net
 
     #### DATABASE ####
     - name: Deploy Postgres container
@@ -68,6 +70,8 @@
           POSTGRES_DB: "{{ postgres_db_name }}"
           POSTGRES_USER: "{{ postgres_user }}"
           POSTGRES_PASSWORD: "{{ postgres_password }}"
+        networks:
+          - name: app-net
 
     #### KEYCLOAK ####
     - name: Deploy Keycloak container
@@ -87,6 +91,8 @@
           KC_HOSTNAME_STRICT: "false"
           KEYCLOAK_DEV_MODE: "true"
         command: start
+        networks:
+          - name: app-net
 
     - name: Configure Keycloak credentials
       community.docker.docker_container_exec:
@@ -123,4 +129,6 @@
           OAUTH2_PROXY_COOKIE_SECRET: "{{ oauth2_proxy_cookie_secret }}"
           OAUTH2_PROXY_OIDC_ISSUER_URL: "http://keycloak:8080/realms/myrealm"
           OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+        networks:
+          - name: app-net
 
