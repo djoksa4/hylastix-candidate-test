@@ -66,6 +66,10 @@
           --realm master
           --user {{ keycloak_admin_user }}
           --password {{ keycloak_admin_password }}
+      register: kc_login
+      retries: 10      # try up to 10 times
+      delay: 5        # wait 5s between tries
+      until: kc_login.rc == 0
 
     - name: Create web-client in myrealm
       community.docker.docker_container_exec:
