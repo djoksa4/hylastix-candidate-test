@@ -91,7 +91,6 @@
           -s enabled=true
           -s publicClient=false
           -s secret={{ keycloak_client_secret }}
-          -s redirectUris=["https://20.16.68.65/oauth2/callback"]
 
     #### PROXY ####
     - name: Deploy oauth2-proxy container
