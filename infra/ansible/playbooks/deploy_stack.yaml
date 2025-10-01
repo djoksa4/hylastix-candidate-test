@@ -42,9 +42,8 @@
           KC_DB_USERNAME: "{{ postgres_user }}"
           KC_DB_PASSWORD: "{{ postgres_password }}"
           KC_HOSTNAME_STRICT: "false"
-          # KEYCLOAK_DEV_MODE: "true"
-        # command: start-dev
-        command: start
+          KEYCLOAK_DEV_MODE: "true"
+        command: start-dev
         networks:
           - name: app-net
         published_ports:
