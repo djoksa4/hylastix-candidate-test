@@ -131,6 +131,7 @@ jobs:
           KEYCLOAK_IMAGE: quay.io/keycloak/keycloak:21.1.1
           KEYCLOAK_ADMIN_USER: ${{ secrets.KEYCLOAK_ADMIN_USER }}
           KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+          KEYCLOAK_CLIENT_SECRET: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
           POSTGRES_IMAGE: postgres:15
           POSTGRES_DB_NAME: appdb
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -139,6 +140,8 @@ jobs:
           WEB_CONTENT_DIR_LOCAL: ../web_content/
           WEB_CONFIG_DIR_LOCAL: ../web_config/
           WEB_PORT: 8080
+          OAUTH2_PROXY_IMAGE: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+          OAUTH2_PROXY_COOKIE_SECRET: ${{ secrets.OAUTH2_PROXY_COOKIE_SECRET }}
           
         run: |
           ansible-playbook -vvv \
@@ -149,6 +152,7 @@ jobs:
                            --extra-vars "keycloak_image=$KEYCLOAK_IMAGE \
                                          keycloak_admin_user=$KEYCLOAK_ADMIN_USER \
                                          keycloak_admin_password=$KEYCLOAK_ADMIN_PASSWORD \
+                                         keycloak_client_secret=$KEYCLOAK_CLIENT_SECRET \
                                          postgres_image=$POSTGRES_IMAGE \
                                          postgres_db_name=$POSTGRES_DB_NAME \
                                          postgres_user=$POSTGRES_USER \
@@ -156,5 +160,7 @@ jobs:
                                          web_image=$WEB_IMAGE \
                                          web_content_dir_local=$WEB_CONTENT_DIR_LOCAL \
                                          nginx_config_dir_local=$WEB_CONFIG_DIR_LOCAL \
-                                         web_port=$WEB_PORT"
+                                         web_port=$WEB_PORT \
+                                         oauth2_proxy_image=$OAUTH2_PROXY_IMAGE \
+                                         oauth2_proxy_cookie_secret=$OAUTH2_PROXY_COOKIE_SECRET"
                                          
