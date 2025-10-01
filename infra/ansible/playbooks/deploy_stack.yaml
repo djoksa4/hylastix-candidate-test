@@ -32,6 +32,7 @@
         image: "{{ keycloak_image }}"
         state: started
         restart_policy: always
+        recreate: yes
         env:
           KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
           KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
@@ -85,6 +86,7 @@
         image: "{{ oauth2_proxy_image }}"
         state: started
         restart_policy: always
+        recreate: yes
         env:
           OAUTH2_PROXY_PROVIDER: keycloak
           OAUTH2_PROXY_CLIENT_ID: "{{ keycloak_client }}"
@@ -136,6 +138,7 @@
         image: "{{ web_image }}"
         state: started
         restart_policy: always
+        recreate: yes
         published_ports:
           - "{{ web_port }}:80"
         volumes:
