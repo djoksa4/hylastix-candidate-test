@@ -15,6 +15,7 @@
 ## Deployment
 - Two GitHub workflows (1 for one-click deployment, 1 for disassembly).
 - All parameters passed as vars and secrets (configurable in one place).
+- Workflows are protected by environment rules requiring approvals before proceeding.
 - Deployment workflow will:
   1. Generate a token for registering a GitHub self-hosted runner.
   2. Deploy complete infrastructure using Terraform.
