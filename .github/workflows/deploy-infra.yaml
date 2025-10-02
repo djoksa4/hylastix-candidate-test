@@ -94,14 +94,14 @@ jobs:
       VM_USER: ${{ secrets.APP_VM_ADMIN_USERNAME }}
       SSH_KEY_PATH: /tmp/app_vm_key
     steps:
-      - name: Print previous job outputs and test SSH
-        run: |
-          echo "App VM IP: $VM_IP"
-          echo "AppGW IP: ${{ needs.terraform-deploy-infra.outputs.appgw_public_ip }}"
+      # - name: Print previous job outputs and test SSH
+      #   run: |
+      #     echo "App VM IP: $VM_IP"
+      #     echo "AppGW IP: ${{ needs.terraform-deploy-infra.outputs.appgw_public_ip }}"
 
-          echo "${{ secrets.APP_VM_PRIVATE_KEY }}" > "$SSH_KEY_PATH"
-          chmod 600 "$SSH_KEY_PATH"
-          ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_PATH" "$VM_USER"@"$VM_IP" "hostname && uptime"
+      #     echo "${{ secrets.APP_VM_PRIVATE_KEY }}" > "$SSH_KEY_PATH"
+      #     chmod 600 "$SSH_KEY_PATH"
+      #     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_PATH" "$VM_USER"@"$VM_IP" "hostname && uptime"
 
       - name: Setup Ansible
         run: |
